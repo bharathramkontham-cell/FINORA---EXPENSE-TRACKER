@@ -7,7 +7,7 @@ import authRouter from "./routes/auth.js";
 import { authenticateToken } from "./middleware/auth.js";
 
 const app = express();
-const PORT = 5000;
+const PORT = Number(process.env.PORT) || 5000;
 
 app.use(cors());
 app.use(express.json());
@@ -920,6 +920,6 @@ setInterval(() => {
 // START SERVER
 // ==========================================
 
-app.listen(PORT, () => {
-  console.log(`FINORA backend running on http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`FINORA backend running on port ${PORT}`);
 });
