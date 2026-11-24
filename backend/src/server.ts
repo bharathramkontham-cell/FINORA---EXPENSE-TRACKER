@@ -9,27 +9,41 @@ import { authenticateToken } from "./middleware/auth.js";
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
 
+// Helper: validate positive integer IDs
+function isPositiveInteger(value: number) {
+  return Number.isInteger(value) && value > 0;
+}
+
 
 app.use(
   cors({
-    origin: [
-      "https://finora-expense-tracker-self.vercel.app",
-      "http://localhost:5173",
-    ],
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        "https://finora-expense-tracker-self.vercel.app",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+      ];
+
+      const isLocalNetwork =
+        origin !== undefined &&
+        /^http:\/\/(192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2[0-9]|3[01])\.\d{1,3}\.\d{1,3}):5173$/.test(
+          origin
+        );
+
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        isLocalNetwork
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Origin not allowed by FINORA CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
-app.use(express.json({ limit: "10kb" }));
-
-
-app.use("/api/auth", authRouter);
-
-// Helper
-function isPositiveInteger(value: number) {
-  return Number.isInteger(value) && value > 0;
-}
 
 // ==========================================
 // PUBLIC ROUTES
